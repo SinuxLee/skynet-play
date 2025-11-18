@@ -25,11 +25,11 @@ local function unpack_package(text)
 		return nil, text
 	end
 	local s = text:byte(1) * 256 + text:byte(2)
-	if size < s+2 then
+	if size < s + 2 then
 		return nil, text
 	end
 
-	return text:sub(3,2+s), text:sub(3+s)
+	return text:sub(3, 2 + s), text:sub(3 + s)
 end
 
 local function recv_package(last)
@@ -62,8 +62,8 @@ local last = ""
 local function print_request(name, args)
 	print("REQUEST", name)
 	if args then
-		for k,v in pairs(args) do
-			print(k,v)
+		for k, v in pairs(args) do
+			print(k, v)
 		end
 	end
 end
@@ -71,8 +71,8 @@ end
 local function print_response(session, args)
 	print("RESPONSE", session)
 	if args then
-		for k,v in pairs(args) do
-			print(k,v)
+		for k, v in pairs(args) do
+			print(k, v)
 		end
 	end
 end

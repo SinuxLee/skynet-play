@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-set -e
-set -u
+set -ue
 
 # 可以在config.lua中读取到环境变量,$ROOT、$DAEMON
 export ROOT=$(cd "$(dirname ${0})" || exit; pwd)

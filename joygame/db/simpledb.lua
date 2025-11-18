@@ -1,5 +1,5 @@
 local skynet = require "skynet"
-require "skynet.manager"	-- import skynet.register
+require "skynet.manager" -- import skynet.register
 local db = {}
 
 local command = {}
@@ -21,7 +21,7 @@ skynet.start(function()
 			assert(session == 0)
 			local str = (...)
 			if #str > 20 then
-				str = str:sub(1,20) .. "...(" .. #str .. ")"
+				str = str:sub(1, 20) .. "...(" .. #str .. ")"
 			end
 			skynet.error(string.format("%s ping %s", skynet.address(address), str))
 			return
@@ -33,6 +33,6 @@ skynet.start(function()
 			error(string.format("Unknown command %s", tostring(cmd)))
 		end
 	end)
---	skynet.traceproto("lua", false)	-- true off tracelog
+	--	skynet.traceproto("lua", false)	-- true off tracelog
 	skynet.register "SIMPLEDB"
 end)

@@ -3,12 +3,12 @@ local skynet = require "skynet"
 
 require "skynet.manager"
 
-local params = {...}
+local params = { ... }
 
 local function handle(session, address, ...)
     skynet.error("session", session)
     skynet.error("address", skynet.address(address))
-    local args = {...}
+    local args = { ... }
     for i, v in pairs(args) do
         skynet.error("arg" .. i .. ":", v)
     end
@@ -21,7 +21,7 @@ local function entry()
     skynet.register(".luamsg")
 
     for i, v in pairs(params) do
-        skynet.error("params:",i,v)
+        skynet.error("params:", i, v)
     end
 end
 

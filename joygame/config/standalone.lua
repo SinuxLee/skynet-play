@@ -15,4 +15,3 @@ logpath = "."
 harbor = 0
 bootstrap = "snlua bootstrap"
 start = "standalone"
-

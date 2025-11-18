@@ -17,7 +17,7 @@ local function send_request(addr, msg, sz)
 
 	local tracetag = skynet.tracetag()
 	if tracetag then
-		if tracetag:sub(1,1) ~= "(" then
+		if tracetag:sub(1, 1) ~= "(" then
 			-- add nodename
 			local newtag = string.format("(%s-%s-%d)%s", nodename, node, session, tracetag)
 			skynet.tracelog(tracetag, string.format("session %s", newtag))
@@ -45,7 +45,7 @@ end
 
 function command.push(addr, msg, sz)
 	local request, new_session, padding = cluster.packpush(addr, session, msg, sz)
-	if padding then	-- is multi push
+	if padding then -- is multi push
 		session = new_session
 	end
 
@@ -55,7 +55,7 @@ end
 local function read_response(sock)
 	local sz = socket.header(sock:read(2))
 	local msg = sock:read(sz)
-	return cluster.unpackresponse(msg)	-- session, ok, data, padding
+	return cluster.unpackresponse(msg) -- session, ok, data, padding
 end
 
 function command.changenode(host, port)
@@ -66,12 +66,12 @@ end
 
 skynet.start(function()
 	channel = sc.channel {
-			host = init_host,
-			port = tonumber(init_port),
-			response = read_response,
-			nodelay = true,
-		}
-	skynet.dispatch("lua", function(session , source, cmd, ...)
+		host = init_host,
+		port = tonumber(init_port),
+		response = read_response,
+		nodelay = true,
+	}
+	skynet.dispatch("lua", function(session, source, cmd, ...)
 		local f = assert(command[cmd])
 		f(...)
 	end)

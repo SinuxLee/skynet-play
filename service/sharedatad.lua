@@ -2,7 +2,7 @@ local skynet = require "skynet"
 local sharedata = require "skynet.sharedata.corelib"
 local table = table
 local cache = require "skynet.codecache"
-cache.mode "OFF"	-- turn off codecache, because CMD.new may load data file
+cache.mode "OFF" -- turn off codecache, because CMD.new may load data file
 
 local NORET = {}
 local pool = {}
@@ -14,7 +14,7 @@ local function newobj(name, tbl)
 	assert(pool[name] == nil)
 	local cobj = sharedata.host.new(tbl)
 	sharedata.host.incref(cobj)
-	local v = { value = tbl , obj = cobj, watch = {} }
+	local v = { value = tbl, obj = cobj, watch = {} }
 	objmap[cobj] = v
 	pool[name] = v
 	pool_count[name] = { n = 0, threshold = 16 }
@@ -28,13 +28,13 @@ end
 
 local function collectobj()
 	while true do
-		skynet.sleep(60*100)	-- sleep 1min
+		skynet.sleep(60 * 100) -- sleep 1min
 		if collect_tick <= 0 then
-			collect_tick = 10	-- reset tick count to 10 min
+			collect_tick = 10 -- reset tick count to 10 min
 			collectgarbage()
 			for obj, v in pairs(objmap) do
 				if v == true then
-					if sharedata.host.getref(obj) <= 0  then
+					if sharedata.host.getref(obj) <= 0 then
 						objmap[obj] = nil
 						sharedata.host.delete(obj)
 					end
@@ -58,8 +58,8 @@ function CMD.new(name, t, ...)
 	elseif dt == "string" then
 		value = setmetatable({}, env_mt)
 		local f
-		if t:sub(1,1) == "@" then
-			f = assert(loadfile(t:sub(2),"bt",value))
+		if t:sub(1, 1) == "@" then
+			f = assert(loadfile(t:sub(2), "bt", value))
 		else
 			f = assert(load(t, "=" .. name, "bt", value))
 		end
@@ -71,7 +71,7 @@ function CMD.new(name, t, ...)
 	elseif dt == "nil" then
 		value = {}
 	else
-		error ("Unknown data type " .. dt)
+		error("Unknown data type " .. dt)
 	end
 	newobj(name, value)
 end
@@ -83,7 +83,7 @@ function CMD.delete(name)
 	assert(objmap[v.obj])
 	objmap[v.obj] = true
 	sharedata.host.decref(v.obj)
-	for _,response in pairs(v.watch) do
+	for _, response in pairs(v.watch) do
 		response(true)
 	end
 end
@@ -117,17 +117,17 @@ function CMD.update(name, t, ...)
 	local newobj = pool[name].obj
 	if watch then
 		sharedata.host.markdirty(oldcobj)
-		for _,response in pairs(watch) do
+		for _, response in pairs(watch) do
 			sharedata.host.incref(newobj)
 			response(true, newobj)
 		end
 	end
-	collect1min()	-- collect in 1 min
+	collect1min() -- collect in 1 min
 end
 
 local function check_watch(queue)
 	local n = 0
-	for k,response in pairs(queue) do
+	for k, response in pairs(queue) do
 		if not response "TEST" then
 			queue[k] = nil
 			n = n + 1
@@ -157,7 +157,7 @@ end
 
 skynet.start(function()
 	skynet.fork(collectobj)
-	skynet.dispatch("lua", function (session, source ,cmd, ...)
+	skynet.dispatch("lua", function(session, source, cmd, ...)
 		local f = assert(CMD[cmd])
 		local r = f(...)
 		if r ~= NORET then
@@ -165,4 +165,3 @@ skynet.start(function()
 		end
 	end)
 end)
-

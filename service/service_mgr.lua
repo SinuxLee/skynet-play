@@ -1,5 +1,5 @@
 local skynet = require "skynet"
-require "skynet.manager"	-- import skynet.register
+require "skynet.manager" -- import skynet.register
 local snax = require "skynet.snax"
 
 local cmd = {}
@@ -15,7 +15,7 @@ local function request(name, func, ...)
 		service[name] = tostring(handle)
 	end
 
-	for _,v in ipairs(s) do
+	for _, v in ipairs(s) do
 		skynet.wakeup(v.co)
 	end
 
@@ -26,7 +26,7 @@ local function request(name, func, ...)
 	end
 end
 
-local function waitfor(name , func, ...)
+local function waitfor(name, func, ...)
 	local s = service[name]
 	if type(s) == "number" then
 		return s
@@ -69,7 +69,7 @@ end
 
 local function read_name(service_name)
 	if string.byte(service_name) == 64 then -- '@'
-		return string.sub(service_name , 2)
+		return string.sub(service_name, 2)
 	else
 		return service_name
 	end
@@ -79,7 +79,7 @@ function cmd.LAUNCH(service_name, subname, ...)
 	local realname = read_name(service_name)
 
 	if realname == "snaxd" then
-		return waitfor(service_name.."."..subname, snax.rawnewservice, subname, ...)
+		return waitfor(service_name .. "." .. subname, snax.rawnewservice, subname, ...)
 	else
 		return waitfor(service_name, skynet.newservice, realname, subname, ...)
 	end
@@ -89,7 +89,7 @@ function cmd.QUERY(service_name, subname)
 	local realname = read_name(service_name)
 
 	if realname == "snaxd" then
-		return waitfor(service_name.."."..subname)
+		return waitfor(service_name .. "." .. subname)
 	else
 		return waitfor(service_name)
 	end
@@ -97,7 +97,7 @@ end
 
 local function list_service()
 	local result = {}
-	for k,v in pairs(service) do
+	for k, v in pairs(service) do
 		if type(v) == "string" then
 			v = "Error: " .. v
 		elseif type(v) == "table" then
@@ -107,15 +107,17 @@ local function list_service()
 				local launching_address = skynet.call(".launcher", "lua", "QUERY", session)
 				if launching_address then
 					table.insert(querying, "Init as " .. skynet.address(launching_address))
-					table.insert(querying,  skynet.call(launching_address, "debug", "TASK", "init"))
+					table.insert(querying, skynet.call(launching_address, "debug", "TASK", "init"))
 					table.insert(querying, "Launching from " .. skynet.address(v.launch.source))
 					table.insert(querying, skynet.call(v.launch.source, "debug", "TASK", v.launch.session))
 				end
 			end
 			if #v > 0 then
-				table.insert(querying , "Querying:" )
+				table.insert(querying, "Querying:")
 				for _, detail in ipairs(v) do
-					table.insert(querying, skynet.address(detail.source) .. " " .. tostring(skynet.call(detail.source, "debug", "TASK", detail.session)))
+					table.insert(querying,
+						skynet.address(detail.source) ..
+						" " .. tostring(skynet.call(detail.source, "debug", "TASK", detail.session)))
 				end
 			end
 			v = table.concat(querying, "\n")
@@ -150,7 +152,7 @@ local function register_global()
 	local function add_list(all, m)
 		local harbor = "@" .. skynet.harbor(m)
 		local result = skynet.call(m, "lua", "LIST")
-		for k,v in pairs(result) do
+		for k, v in pairs(result) do
 			all[k .. harbor] = v
 		end
 	end
@@ -212,7 +214,7 @@ skynet.start(function()
 		end
 	end)
 	local handle = skynet.localname ".service"
-	if  handle then
+	if handle then
 		skynet.error(".service is already register by ", skynet.address(handle))
 		skynet.exit()
 	else

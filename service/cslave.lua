@@ -1,7 +1,7 @@
 local skynet = require "skynet"
 local socket = require "skynet.socket"
 local socketdriver = require "skynet.socketdriver"
-require "skynet.manager"	-- import skynet.launch, ...
+require "skynet.manager" -- import skynet.launch, ...
 local table = table
 
 local slaves = {}
@@ -24,7 +24,7 @@ end
 local function pack_package(...)
 	local message = skynet.packstring(...)
 	local size = #message
-	assert(size <= 255 , "too long")
+	assert(size <= 255, "too long")
 	return string.char(size) .. message
 end
 
@@ -41,13 +41,13 @@ end
 local function connect_slave(slave_id, address)
 	local ok, err = pcall(function()
 		if slaves[slave_id] == nil then
-			local fd = assert(socket.open(address), "Can't connect to "..address)
+			local fd = assert(socket.open(address), "Can't connect to " .. address)
 			socketdriver.nodelay(fd)
 			skynet.error(string.format("Connect to harbor %d (fd=%d), %s", slave_id, fd, address))
 			slaves[slave_id] = fd
 			monitor_clear(slave_id)
 			socket.abandon(fd)
-			skynet.send(harbor_service, "harbor", string.format("S %d %d",fd,slave_id))
+			skynet.send(harbor_service, "harbor", string.format("S %d %d", fd, slave_id))
 		end
 	end)
 	if not ok then
@@ -58,10 +58,10 @@ end
 local function ready()
 	local queue = connect_queue
 	connect_queue = nil
-	for k,v in pairs(queue) do
-		connect_slave(k,v)
+	for k, v in pairs(queue) do
+		connect_slave(k, v)
 	end
-	for name,address in pairs(globalname) do
+	for name, address in pairs(globalname) do
 		skynet.redirect(harbor_service, address, "harbor", 0, "N " .. name)
 	end
 end
@@ -71,7 +71,7 @@ local function response_name(name)
 	if queryname[name] then
 		local tmp = queryname[name]
 		queryname[name] = nil
-		for _,resp in ipairs(tmp) do
+		for _, resp in ipairs(tmp) do
 			resp(true, address)
 		end
 	end
@@ -79,7 +79,7 @@ end
 
 local function monitor_master(master_fd)
 	while true do
-		local ok, t, id_name, address = pcall(read_package,master_fd)
+		local ok, t, id_name, address = pcall(read_package, master_fd)
 		if ok then
 			if t == 'C' then
 				if connect_queue then
@@ -206,7 +206,7 @@ function harbor.CONNECT(fd, id)
 end
 
 function harbor.QUERYNAME(fd, name)
-	if name:byte() == 46 then	-- "." , local name
+	if name:byte() == 46 then -- "." , local name
 		skynet.ret(skynet.pack(skynet.localname(name)))
 		return
 	end
@@ -233,7 +233,7 @@ skynet.start(function()
 	skynet.error("slave connect to master " .. tostring(master_addr))
 	local master_fd = assert(socket.open(master_addr), "Can't connect to master")
 
-	skynet.dispatch("lua", function (_,_,command,...)
+	skynet.dispatch("lua", function(_, _, command, ...)
 		local f = assert(harbor[command])
 		f(master_fd, ...)
 	end)
@@ -250,11 +250,11 @@ skynet.start(function()
 	if n > 0 then
 		local co = coroutine.running()
 		socket.start(slave_fd, function(fd, addr)
-			skynet.error(string.format("New connection (fd = %d, %s)",fd, addr))
+			skynet.error(string.format("New connection (fd = %d, %s)", fd, addr))
 			socketdriver.nodelay(fd)
-			if pcall(accept_slave,fd) then
+			if pcall(accept_slave, fd) then
 				local s = 0
-				for k,v in pairs(slaves) do
+				for k, v in pairs(slaves) do
 					s = s + 1
 				end
 				if s >= n then

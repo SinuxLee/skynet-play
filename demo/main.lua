@@ -7,7 +7,7 @@ require "skynet.manager"
 
 skynet.register(".main")
 
-local args = {...}
+local args = { ... }
 
 local function request_baidu(protocol)
     --httpc.dns()	-- set dns server
@@ -28,7 +28,7 @@ local function request_baidu(protocol)
     local respheader = {}
     local ip = dns.resolve "baidu.com"
     print(string.format("GET %s (baidu.com)", ip))
-    local status, body = httpc.get(host, "/", respheader, {host = "baidu.com"})
+    local status, body = httpc.get(host, "/", respheader, { host = "baidu.com" })
     print(status)
 end
 
@@ -64,11 +64,11 @@ end
 
 local function entry()
     skynet.error("entry time:" .. skynet.now())
-    local hello_handle = skynet.newservice("hello") -- 启动新的 service, 普通服务不保证唯一性
-    skynet.name(".hello", hello_handle) -- 给service定义别名，方便调用
+    local hello_handle = skynet.newservice("hello")       -- 启动新的 service, 普通服务不保证唯一性
+    skynet.name(".hello", hello_handle)                   -- 给service定义别名，方便调用
 
-    skynet.uniqueservice(true, "hello") -- 所有节点内是唯一的
-    skynet.uniqueservice("hello") -- 此节点内是唯一的
+    skynet.uniqueservice(true, "hello")                   -- 所有节点内是唯一的
+    skynet.uniqueservice("hello")                         -- 此节点内是唯一的
     skynet.error(skynet.queryservice(true, "hello"), skynet.queryservice("hello"))
     skynet.error("entry file:" .. skynet.getenv("start")) -- 只能是config或者代码中定义的变量,可以新增加但无法修改。
     skynet.error("thread num:" .. skynet.getenv("thread"))

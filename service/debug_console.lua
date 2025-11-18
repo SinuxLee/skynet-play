@@ -23,17 +23,17 @@ local function format_table(t)
 	end
 	table.sort(index, function(a, b) return tostring(a) < tostring(b) end)
 	local result = {}
-	for _,v in ipairs(index) do
-		table.insert(result, string.format("%s:%s",v,tostring(t[v])))
+	for _, v in ipairs(index) do
+		table.insert(result, string.format("%s:%s", v, tostring(t[v])))
 	end
-	return table.concat(result,"\t")
+	return table.concat(result, "\t")
 end
 
 local function dump_line(print, key, value)
 	if type(value) == "table" then
 		print(key, format_table(value))
 	else
-		print(key,tostring(value))
+		print(key, tostring(value))
 	end
 end
 
@@ -43,7 +43,7 @@ local function dump_list(print, list)
 		table.insert(index, k)
 	end
 	table.sort(index, function(a, b) return tostring(a) < tostring(b) end)
-	for _,v in ipairs(index) do
+	for _, v in ipairs(index) do
 		dump_line(print, v, list[v])
 	end
 end
@@ -51,7 +51,7 @@ end
 local function split_cmdline(cmdline)
 	local split = {}
 	for i in string.gmatch(cmdline, "%S+") do
-		table.insert(split,i)
+		table.insert(split, i)
 	end
 	return split
 end
@@ -62,7 +62,7 @@ local function docmd(cmdline, print, fd)
 	local cmd = COMMAND[command]
 	local ok, list
 	if cmd then
-		ok, list = pcall(cmd, table.unpack(split,2))
+		ok, list = pcall(cmd, table.unpack(split, 2))
 	else
 		cmd = COMMANDX[command]
 		if cmd then
@@ -98,10 +98,10 @@ local function console_main_loop(stdin, print, addr)
 			if not cmdline then
 				break
 			end
-			if cmdline:sub(1,4) == "GET " then
+			if cmdline:sub(1, 4) == "GET " then
 				-- http
-				local code, url = httpd.read_request(sockethelper.readfunc(stdin, cmdline.. "\n"), 8192)
-				local cmdline = url:sub(2):gsub("/"," ")
+				local code, url = httpd.read_request(sockethelper.readfunc(stdin, cmdline .. "\n"), 8192)
+				local cmdline = url:sub(2):gsub("/", " ")
 				docmd(cmdline, print, stdin)
 				break
 			end
@@ -118,19 +118,19 @@ local function console_main_loop(stdin, print, addr)
 end
 
 skynet.start(function()
-	local listen_socket = socket.listen (ip, port)
+	local listen_socket = socket.listen(ip, port)
 	skynet.error("Start debug console at " .. ip .. ":" .. port)
-	socket.start(listen_socket , function(id, addr)
+	socket.start(listen_socket, function(id, addr)
 		local function print(...)
 			local t = { ... }
-			for k,v in ipairs(t) do
+			for k, v in ipairs(t) do
 				t[k] = tostring(v)
 			end
-			socket.write(id, table.concat(t,"\t"))
+			socket.write(id, table.concat(t, "\t"))
 			socket.write(id, "\n")
 		end
 		socket.start(id)
-		skynet.fork(console_main_loop, id , print, addr)
+		skynet.fork(console_main_loop, id, print, addr)
 	end)
 end)
 
@@ -214,7 +214,7 @@ function COMMAND.service()
 end
 
 local function adjust_address(address)
-	local prefix = address:sub(1,1)
+	local prefix = address:sub(1, 1)
 	if prefix == '.' then
 		return assert(skynet.localname(address), "Not a valid name")
 	elseif prefix ~= ':' then
@@ -303,7 +303,7 @@ function COMMANDX.debug(cmd)
 	local function forward_cmd()
 		repeat
 			-- notice :  It's a bad practice to call socket.readline from two threads (this one and console_main_loop), be careful.
-			skynet.call(agent, "lua", "ping")	-- detect agent alive, if agent exit, raise error
+			skynet.call(agent, "lua", "ping") -- detect agent alive, if agent exit, raise error
 			local cmdline = socket.readline(cmd.fd, "\n")
 			cmdline = cmdline and cmdline:gsub("(.*)\r$", "%1")
 			if not cmdline then
@@ -315,7 +315,7 @@ function COMMANDX.debug(cmd)
 	end
 	skynet.fork(function()
 		pcall(forward_cmd)
-		if not stop then	-- block at skynet.call "start"
+		if not stop then -- block at skynet.call "start"
 			term_co = nil
 		else
 			skynet.wakeup(term_co)
@@ -346,7 +346,7 @@ end
 function COMMAND.signal(address, sig)
 	address = skynet.address(adjust_address(address))
 	if sig then
-		core.command("SIGNAL", string.format("%s %d",address,sig))
+		core.command("SIGNAL", string.format("%s %d", address, sig))
 	else
 		core.command("SIGNAL", address)
 	end
@@ -355,7 +355,7 @@ end
 function COMMAND.cmem()
 	local info = memory.info()
 	local tmp = {}
-	for k,v in pairs(info) do
+	for k, v in pairs(info) do
 		tmp[skynet.address(k)] = v
 	end
 	tmp.total = memory.total()
@@ -367,8 +367,8 @@ end
 function COMMAND.jmem()
 	local info = memory.jestat()
 	local tmp = {}
-	for k,v in pairs(info) do
-		tmp[k] = string.format("%11d  %8.2f Mb", v, v/1048576)
+	for k, v in pairs(info) do
+		tmp[k] = string.format("%11d  %8.2f Mb", v, v / 1048576)
 	end
 	return tmp
 end
@@ -399,7 +399,7 @@ end
 
 function COMMANDX.call(cmd)
 	local address = adjust_address(cmd[2])
-	local cmdline = assert(cmd[1]:match("%S+%s+%S+%s(.+)") , "need arguments")
+	local cmdline = assert(cmd[1]:match("%S+%s+%S+%s(.+)"), "need arguments")
 	local args_func = assert(load("return " .. cmdline, "debug console", "t", {}), "Invalid arguments")
 	local args = table.pack(pcall(args_func))
 	if not args[1] then
@@ -417,9 +417,9 @@ local function bytes(size)
 		return size
 	end
 	if size < 1024 * 1024 then
-		return tostring(size/1024) .. "K"
+		return tostring(size / 1024) .. "K"
 	end
-	return tostring(size/(1024*1024)) .. "M"
+	return tostring(size / (1024 * 1024)) .. "M"
 end
 
 local function convert_stat(info)
@@ -430,14 +430,14 @@ local function convert_stat(info)
 		end
 		t = now - t
 		if t < 6000 then
-			return tostring(t/100) .. "s"
+			return tostring(t / 100) .. "s"
 		end
-		local hour = t // (100*60*60)
+		local hour = t // (100 * 60 * 60)
 		t = t - hour * 100 * 60 * 60
-		local min = t // (100*60)
+		local min = t // (100 * 60)
 		t = t - min * 100 * 60
 		local sec = t / 100
-		return string.format("%s%d:%.2gs",hour == 0 and "" or (hour .. ":"),min,sec)
+		return string.format("%s%d:%.2gs", hour == 0 and "" or (hour .. ":"), min, sec)
 	end
 
 	info.address = skynet.address(info.address)
@@ -468,5 +468,5 @@ function COMMAND.profactive(flag)
 		memory.profactive(flag)
 	end
 	local active = memory.profactive()
-	return "heap profilling is ".. (active and "active" or "deactive")
+	return "heap profilling is " .. (active and "active" or "deactive")
 end

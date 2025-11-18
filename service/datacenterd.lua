@@ -21,7 +21,7 @@ function command.QUERY(key, ...)
 end
 
 local function update(db, key, value, ...)
-	if select("#",...) == 0 then
+	if select("#", ...) == 0 then
 		local ret = db[key]
 		db[key] = value
 		return ret, value
@@ -45,7 +45,7 @@ local function wakeup(db, key1, ...)
 		db[key1] = nil
 		if select("#", ...) ~= 1 then
 			-- throw error because can't wake up a branch
-			for _,response in ipairs(q) do
+			for _, response in ipairs(q) do
 				response(false)
 			end
 		else
@@ -53,7 +53,7 @@ local function wakeup(db, key1, ...)
 		end
 	else
 		-- it's branch
-		return wakeup(q , ...)
+		return wakeup(q, ...)
 	end
 end
 
@@ -65,7 +65,7 @@ function command.UPDATE(...)
 	local q = wakeup(wait_queue, ...)
 	if q then
 		for _, response in ipairs(q) do
-			response(true,value)
+			response(true, value)
 		end
 	end
 end
@@ -94,7 +94,7 @@ local function waitfor(db, key1, key2, ...)
 end
 
 skynet.start(function()
-	skynet.dispatch("lua", function (_, _, cmd, ...)
+	skynet.dispatch("lua", function(_, _, cmd, ...)
 		if cmd == "WAIT" then
 			local ret = command.QUERY(...)
 			if ret then

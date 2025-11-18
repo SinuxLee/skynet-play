@@ -39,14 +39,14 @@ end
 local function pack_package(...)
 	local message = skynet.packstring(...)
 	local size = #message
-	assert(size <= 255 , "too long")
+	assert(size <= 255, "too long")
 	return string.char(size) .. message
 end
 
 local function report_slave(fd, slave_id, slave_addr)
 	local message = pack_package("C", slave_id, slave_addr)
 	local n = 0
-	for k,v in pairs(slave_node) do
+	for k, v in pairs(slave_node) do
 		if v.fd ~= 0 then
 			socket.write(v.fd, message)
 			n = n + 1
@@ -57,8 +57,8 @@ end
 
 local function handshake(fd)
 	local t, slave_id, slave_addr = read_package(fd)
-	assert(t=='H', "Invalid handshake type " .. t)
-	assert(slave_id ~= 0 , "Invalid slave id 0")
+	assert(t == 'H', "Invalid handshake type " .. t)
+	assert(slave_id ~= 0, "Invalid slave id 0")
 	if slave_node[slave_id] then
 		error(string.format("Slave %d already register on %s", slave_id, slave_node[slave_id].addr))
 	end
@@ -68,19 +68,19 @@ local function handshake(fd)
 		id = slave_id,
 		addr = slave_addr,
 	}
-	return slave_id , slave_addr
+	return slave_id, slave_addr
 end
 
 local function dispatch_slave(fd)
 	local t, name, address = read_package(fd)
 	if t == 'R' then
 		-- register name
-		assert(type(address)=="number", "Invalid request")
+		assert(type(address) == "number", "Invalid request")
 		if not global_name[name] then
 			global_name[name] = address
 		end
 		local message = pack_package("N", name, address)
-		for k,v in pairs(slave_node) do
+		for k, v in pairs(slave_node) do
 			socket.write(v.fd, message)
 		end
 	elseif t == 'Q' then
@@ -98,10 +98,10 @@ local function monitor_slave(slave_id, slave_address)
 	local fd = slave_node[slave_id].fd
 	skynet.error(string.format("Harbor %d (fd=%d) report %s", slave_id, fd, slave_address))
 	while pcall(dispatch_slave, fd) do end
-	skynet.error("slave " ..slave_id .. " is down")
+	skynet.error("slave " .. slave_id .. " is down")
 	local message = pack_package("D", slave_id)
 	slave_node[slave_id].fd = 0
-	for k,v in pairs(slave_node) do
+	for k, v in pairs(slave_node) do
 		socket.write(v.fd, message)
 	end
 	socket.close(fd)
@@ -111,7 +111,7 @@ skynet.start(function()
 	local master_addr = skynet.getenv "standalone"
 	skynet.error("master listen socket " .. tostring(master_addr))
 	local fd = socket.listen(master_addr)
-	socket.start(fd , function(id, addr)
+	socket.start(fd, function(id, addr)
 		skynet.error("connect from " .. addr .. " " .. id)
 		socket.start(id)
 		local ok, slave, slave_addr = pcall(handshake, id)

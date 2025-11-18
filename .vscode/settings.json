@@ -1,6 +1,29 @@
 {
     "Lua.workspace.library": [
-        "${3rd}/skynet/library"
+        "${addons}/lldebugger/module/library",
+        "${addons}/lua-cjson/module/library",
+        "${addons}/skynet/module/library"
     ],
-    "Lua.workspace.checkThirdParty": false
+    "Lua.runtime.builtin": {
+        "basic": "default",
+        "table": "default",
+        "string": "default"
+    },
+    "Lua.workspace.checkThirdParty": false,
+    "Lua.runtime.version": "Lua 5.4",
+    "Lua.diagnostics.globals": [
+        "skynet",
+        "SERVICE_NAME"
+    ],
+    "Lua.hint.enable": true,
+    "Lua.hint.paramType": true,
+    "Lua.hint.setType": true,
+    "Lua.diagnostics.enable": true,
+    "Lua.diagnostics.disable": [
+        "lowercase-global",
+    ],
+    "Lua.format.defaultConfig": {
+        "indent_style": "space",
+        "indent_size": "2"
+    }
 }

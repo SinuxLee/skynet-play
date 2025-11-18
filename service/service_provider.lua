@@ -28,8 +28,8 @@ end
 local function boot(addr, name, code, ...)
 	local s = svr[name]
 	skynet.call(addr, "lua", "init", code, ...)
-	local tmp = table.pack( ... )
-	for i=1,tmp.n do
+	local tmp = table.pack(...)
+	for i = 1, tmp.n do
 		tmp[i] = tostring(tmp[i])
 	end
 
@@ -49,7 +49,7 @@ function provider.launch(name, code, ...)
 	else
 		s.booting = true
 		local err
-		local ok, addr = pcall(skynet.newservice,"service_cell", name)
+		local ok, addr = pcall(skynet.newservice, "service_cell", name)
 		if ok then
 			ok, err = xpcall(boot, debug.traceback, addr, name, code, ...)
 		else
@@ -81,13 +81,13 @@ end
 function provider.test(name)
 	local s = svr[name]
 	if s.booting then
-		skynet.ret(skynet.pack(nil, true))	-- booting
+		skynet.ret(skynet.pack(nil, true)) -- booting
 	elseif s.address then
 		skynet.ret(skynet.pack(s.address))
 	elseif s.error then
 		error(s.error)
 	else
-		skynet.ret()	-- nil
+		skynet.ret() -- nil
 	end
 end
 
@@ -97,7 +97,7 @@ skynet.start(function()
 	end)
 	skynet.info_func(function()
 		local info = {}
-		for k,v in pairs(svr) do
+		for k, v in pairs(svr) do
 			local status
 			if v.booting then
 				status = "booting"
@@ -107,7 +107,7 @@ skynet.start(function()
 			info[skynet.address(v.address)] = {
 				init = v.init,
 				name = k,
-				time = os.date("%Y %b %d %T %z",math.floor(v.time)),
+				time = os.date("%Y %b %d %T %z", math.floor(v.time)),
 				status = status,
 			}
 		end

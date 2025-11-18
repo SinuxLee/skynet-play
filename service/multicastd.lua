@@ -65,12 +65,12 @@ end
 
 -- publish a message, for local node, use the message pointer (call mc.bind to add the reference)
 -- for remote node, call remote_publish. (call mc.unpack and skynet.tostring to convert message pointer to string)
-local function publish(c , source, pack, size)
+local function publish(c, source, pack, size)
 	local remote = channel_remote[c]
 	if remote then
 		-- remote publish should unpack the pack, because we should not publish the pointer out.
 		local _, msg, sz = mc.unpack(pack, size)
-		local msg = skynet.tostring(msg,sz)
+		local msg = skynet.tostring(msg, sz)
 		for node in pairs(remote) do
 			remote_publish(node, c, source, msg)
 		end
@@ -83,11 +83,11 @@ local function publish(c , source, pack, size)
 		mc.close(pack)
 		return
 	end
-	local msg = skynet.tostring(pack, size)	-- copy (pack,size) to a string
-	mc.bind(pack, channel_n[c])	-- mc.bind will free the pack(struct mc_package **)
+	local msg = skynet.tostring(pack, size) -- copy (pack,size) to a string
+	mc.bind(pack, channel_n[c])          -- mc.bind will free the pack(struct mc_package **)
 	for k in pairs(group) do
 		-- the msg is a pointer to the real message, publish pointer in local is ok.
-		skynet.redirect(k, source, "multicast", c , msg)
+		skynet.redirect(k, source, "multicast", c, msg)
 	end
 end
 
@@ -97,7 +97,7 @@ skynet.register_protocol {
 	unpack = function(msg, sz)
 		return mc.packremote(msg, sz)
 	end,
-	dispatch = function (...)
+	dispatch = function(...)
 		skynet.ignoreret()
 		publish(...)
 	end,
@@ -112,7 +112,7 @@ function command.PUB(source, c, pack, size)
 		-- remote publish
 		remote_publish(node, c, source, mc.remote(pack))
 	else
-		publish(c, source, pack,size)
+		publish(c, source, pack, size)
 	end
 end
 
@@ -188,7 +188,7 @@ function command.USUB(source, c)
 end
 
 skynet.start(function()
-	skynet.dispatch("lua", function(_,source, cmd, ...)
+	skynet.dispatch("lua", function(_, source, cmd, ...)
 		local f = assert(command[cmd])
 		local result = f(source, ...)
 		if result ~= NORET then
@@ -199,4 +199,3 @@ skynet.start(function()
 	local id = skynet.harbor(self)
 	assert(datacenter.set("multicast", id, self) == nil)
 end)
-

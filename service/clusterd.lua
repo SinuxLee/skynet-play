@@ -26,7 +26,7 @@ local function open_channel(t, key)
 		local co = coroutine.running()
 		assert(ct.namequery == nil)
 		ct.namequery = co
-		skynet.error("Waiting for cluster node [".. key.."]")
+		skynet.error("Waiting for cluster node [" .. key .. "]")
 		skynet.wait(co)
 		address = node_address[key]
 	end
@@ -54,14 +54,14 @@ local function open_channel(t, key)
 			err = string.format("changenode [%s] (%s:%s) failed", key, host, port)
 		end
 	else
-		err = string.format("cluster node [%s] is %s.", key,  address == false and "down" or "absent")
+		err = string.format("cluster node [%s] is %s.", key, address == false and "down" or "absent")
 	end
 	connecting[key] = nil
 	for _, co in ipairs(ct) do
 		skynet.wakeup(co)
 	end
 	if node_address[key] ~= address then
-		return open_channel(t,key)
+		return open_channel(t, key)
 	end
 	assert(succ, err)
 	return c
@@ -76,12 +76,12 @@ local function loadconfig(tmp)
 			local f = assert(io.open(config_name))
 			local source = f:read "*a"
 			f:close()
-			assert(load(source, "@"..config_name, "t", tmp))()
+			assert(load(source, "@" .. config_name, "t", tmp))()
 		end
 	end
 	local reload = {}
-	for name,address in pairs(tmp) do
-		if name:sub(1,2) == "__" then
+	for name, address in pairs(tmp) do
+		if name:sub(1, 2) == "__" then
 			name = name:sub(3)
 			config[name] = address
 			skynet.error(string.format("Config %s = %s", name, address))
@@ -146,7 +146,7 @@ function command.proxy(source, node, name)
 	if name == nil then
 		node, name = node:match "^([^@.]+)([@.].+)"
 		if name == nil then
-			error ("Invalid name " .. tostring(node))
+			error("Invalid name " .. tostring(node))
 		end
 	end
 	local fullname = node .. "." .. name
@@ -164,7 +164,7 @@ function command.proxy(source, node, name)
 	skynet.ret(skynet.pack(p))
 end
 
-local cluster_agent = {}	-- fd:service
+local cluster_agent = {} -- fd:service
 local register_name = {}
 
 local function clearnamecache()
@@ -223,7 +223,7 @@ end
 
 skynet.start(function()
 	loadconfig()
-	skynet.dispatch("lua", function(session , source, cmd, ...)
+	skynet.dispatch("lua", function(session, source, cmd, ...)
 		local f = assert(command[cmd])
 		f(source, ...)
 	end)

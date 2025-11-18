@@ -28,4 +28,3 @@ local function entry()
 end
 
 skynet.start(entry)
-

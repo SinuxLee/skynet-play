@@ -1,6 +1,6 @@
 local skynet = require "skynet"
 
-local args = {...}
+local args = { ... }
 
 local function logger()
     while true do

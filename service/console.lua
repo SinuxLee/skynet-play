@@ -5,7 +5,7 @@ local socket = require "skynet.socket"
 local function split_cmdline(cmdline)
 	local split = {}
 	for i in string.gmatch(cmdline, "%S+") do
-		table.insert(split,i)
+		table.insert(split, i)
 	end
 	return split
 end

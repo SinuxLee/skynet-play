@@ -22,12 +22,12 @@ local function close_agent(fd)
 end
 
 function SOCKET.close(fd)
-	skynet.error("socket close",fd)
+	skynet.error("socket close", fd)
 	close_agent(fd)
 end
 
 function SOCKET.error(fd, msg)
-	skynet.error("socket error",fd, msg)
+	skynet.error("socket error", fd, msg)
 	close_agent(fd)
 end
 
@@ -40,7 +40,7 @@ function SOCKET.data(fd, msg)
 end
 
 function CMD.start(conf)
-	skynet.call(gate, "lua", "open" , conf)
+	skynet.call(gate, "lua", "open", conf)
 end
 
 function CMD.close(fd)

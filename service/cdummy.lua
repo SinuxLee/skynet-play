@@ -1,5 +1,5 @@
 local skynet = require "skynet"
-require "skynet.manager"	-- import skynet.launch, ...
+require "skynet.manager" -- import skynet.launch, ...
 
 local globalname = {}
 local queryname = {}
@@ -25,7 +25,7 @@ local function response_name(name)
 	if queryname[name] then
 		local tmp = queryname[name]
 		queryname[name] = nil
-		for _,resp in ipairs(tmp) do
+		for _, resp in ipairs(tmp) do
 			resp(true, address)
 		end
 	end
@@ -39,7 +39,7 @@ function harbor.REGISTER(name, handle)
 end
 
 function harbor.QUERYNAME(name)
-	if name:byte() == 46 then	-- "." , local name
+	if name:byte() == 46 then -- "." , local name
 		skynet.ret(skynet.pack(skynet.localname(name)))
 		return
 	end
@@ -69,11 +69,11 @@ skynet.start(function()
 	local harbor_id = tonumber(skynet.getenv "harbor")
 	assert(harbor_id == 0)
 
-	skynet.dispatch("lua", function (session,source,command,...)
+	skynet.dispatch("lua", function(session, source, command, ...)
 		local f = assert(harbor[command])
 		f(...)
 	end)
-	skynet.dispatch("text", function(session,source,command)
+	skynet.dispatch("text", function(session, source, command)
 		-- ignore all the command
 	end)
 
